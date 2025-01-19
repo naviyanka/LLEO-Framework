@@ -1,0 +1,9 @@
+colorama
+pyyaml
+requests
+beautifulsoup4
+python-nmap
+tqdm
+jinja2
+markdown
+rich

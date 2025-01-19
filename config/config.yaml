@@ -1,0 +1,15 @@
+api_keys:
+  chaos: ''
+  github: ''
+  securitytrails: ''
+  wayback: ''
+output:
+  directory: output
+  formats:
+  - json
+  - markdown
+  - html
+tools:
+  max_retries: 3
+  threads: 10
+  timeout: 300
