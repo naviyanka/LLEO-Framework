@@ -1,8 +1,8 @@
+<h1 align="center">🦁 LLEO Framework</h1>
 <p align="center">
   <img src="assets/banner.png" alt="LLEO Framework Banner" width="800">
 </p>
 
-<h1 align="center">🦁 LLEO Framework</h1>
 <h3 align="center">Because manually running 30+ tools is so last season! 🎭</h3>
 
 <p align="center">
