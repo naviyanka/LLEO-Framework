@@ -15,18 +15,34 @@ class LLEOFramework:
         self.logger = logger
         self.results = {}
         self.current_module = None
+        self.interrupted = False
+        
+        # Validate arguments
+        self._validate_args()
         
         # Initialize output directory
         self.output_dir = self._setup_output_dir()
         
         # Initialize modules
-        self.modules = {
-            'discovery': DiscoveryModule(self),
-            'dns_analysis': DNSAnalysisModule(self),
-            'web_fuzzing': WebFuzzingModule(self),
-            'web_probing': WebProbingModule(self),
-            'vulnerability_scan': VulnerabilityScanModule(self)
-        }
+        try:
+            self.modules = {
+                'discovery': DiscoveryModule(self),
+                'dns_analysis': DNSAnalysisModule(self),
+                'web_fuzzing': WebFuzzingModule(self),
+                'web_probing': WebProbingModule(self),
+                'vulnerability_scan': VulnerabilityScanModule(self)
+            }
+        except Exception as e:
+            self.logger.error(f"Failed to initialize modules: {str(e)}")
+            raise
+    
+    def _validate_args(self):
+        """Validate framework arguments"""
+        if not self.args.domain:
+            raise ValueError("Target domain is required")
+        
+        if self.args.exclude and not os.path.exists(self.args.exclude):
+            raise FileNotFoundError(f"Exclude file not found: {self.args.exclude}")
     
     def _setup_output_dir(self):
         """Setup output directory structure"""

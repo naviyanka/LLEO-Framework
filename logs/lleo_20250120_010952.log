@@ -1,0 +1,14 @@
+2025-01-20 01:09:52,036 - LLEO - INFO - Starting scan for domain: testphp.vulnweb.com
+2025-01-20 01:09:52,036 - LLEO - INFO - Running discovery module...
+2025-01-20 01:09:52,036 - LLEO - INFO - Starting discovery phase...
+2025-01-20 01:09:52,040 - LLEO - ERROR - Unexpected error in haktrails: SecurityTrails API key not found in config
+2025-01-20 01:09:52,040 - LLEO - ERROR - Unexpected error in findomain: [Errno 8] Exec format error: 'findomain'
+2025-01-20 01:09:52,041 - LLEO - WARNING - Tool not found: sf
+2025-01-20 01:09:52,041 - LLEO - ERROR - Unexpected error in spiderfoot: spiderfoot not found. Please install it first.
+2025-01-20 01:09:52,174 - LLEO - ERROR - Wafw00f error: Usage: wafw00f url1 [url2 [url3 ... ]]
+example: wafw00f http://www.victim.org/
+
+wafw00f: error: no such option: -j
+
+2025-01-20 01:09:56,874 - LLEO - ERROR - Failed to parse whatweb JSON output
+2025-01-20 01:10:22,063 - LLEO - WARNING - gospider returned no results
