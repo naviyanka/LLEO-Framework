@@ -1,0 +1,111 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Framework specific
+output/
+results/
+logs/
+*.log
+report_*.html
+report_*.pdf
+report_*.txt
+screenshots/
+temp/
+tmp/
+
+# Tool outputs
+*.txt
+!requirements.txt
+!wordlists/*.txt
+*.json
+!config/*.json
+*.xml
+*.html
+*.pdf
+*.csv
+*.xlsx
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files (except examples)
+config/*
+!config/example.json
+!config/default.json
+
+# API keys and sensitive data
+.env
+*.key
+*.pem
+*.crt
+*.cer
+*.p12
+*.pfx
+credentials.yml
+secrets.yml
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS generated
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*.old
+
+# Debug files
+debug/
+*.debug
+debug.log
+
+# Test files
+test/
+tests/
+testing/
+*.test
+
+# Dependencies
+node_modules/
+vendor/
