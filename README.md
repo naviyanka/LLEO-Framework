@@ -136,6 +136,75 @@ sudo python3 install.py # Watch your CPU have an existential crisis
 - Excuse generator for when things break
 - CPU temperature monitoring (just kidding, we'll max it out anyway)
 
+## 🛠️ Integrated Tools & Functions
+
+### Subdomain Enumeration Tools
+| Tool | Description | Function |
+|------|-------------|----------|
+| [Subfinder](https://github.com/projectdiscovery/subfinder) | Fast passive subdomain discovery tool | Uses various public APIs and sources to find subdomains |
+| [Amass](https://github.com/OWASP/Amass) | In-depth Attack Surface Mapping and Asset Discovery | Performs network mapping of attack surfaces and external asset discovery |
+| [Findomain](https://github.com/Findomain/Findomain) | Cross-platform subdomain enumerator | Uses multiple sources including certificate transparency logs |
+| [Assetfinder](https://github.com/tomnomnom/assetfinder) | Domain reconnaissance tool | Finds domains and subdomains related to a given domain |
+| [Haktrails](https://github.com/hakluke/haktrails) | SecurityTrails API client | Queries SecurityTrails API for historical and current domain data |
+
+### Content Discovery Tools
+| Tool | Description | Function |
+|------|-------------|----------|
+| [Dirsearch](https://github.com/maurosoria/dirsearch) | Web path scanner | Brute forces directories and files in websites |
+| [Gobuster](https://github.com/OJ/gobuster) | Directory/File, DNS and VHost busting tool | Multi-threaded tool to brute force URIs, DNS subdomains and virtual host names |
+| [Ffuf](https://github.com/ffuf/ffuf) | Fast web fuzzer | Identifies hidden elements, directories, subdomains, and parameters |
+| [Wfuzz](https://github.com/xmendez/wfuzz) | Web application fuzzer | Brute forces web applications to find resources not linked directly |
+| [Katana](https://github.com/projectdiscovery/katana) | Crawling and spidering framework | Advanced crawler to automatically discover endpoints and assets |
+
+### DNS Analysis Tools
+| Tool | Description | Function |
+|------|-------------|----------|
+| [DNSx](https://github.com/projectdiscovery/dnsx) | Fast and multi-purpose DNS toolkit | Performs multiple DNS queries and validates results |
+| [AltDNS](https://github.com/infosec-au/altdns) | Subdomain discovery through alterations | Generates permutations of subdomains and validates them |
+| [DNSGen](https://github.com/ProjectAnte/dnsgen) | Domain list generator | Creates domain permutations for brute forcing |
+| [MassDNS](https://github.com/blechschmidt/massdns) | High-performance DNS stub resolver | Performs parallel DNS resolutions |
+
+### Web Technology Detection
+| Tool | Description | Function |
+|------|-------------|----------|
+| [WhatWeb](https://github.com/urbanadventurer/WhatWeb) | Next generation web scanner | Identifies web technologies, CMS, blogging platforms, analytics packages, etc. |
+| [Wappalyzer](https://github.com/wappalyzer/wappalyzer) | Technology profiler | Uncovers technologies used on websites |
+| [Aquatone](https://github.com/michenriksen/aquatone) | Visual inspection tool | Takes screenshots of websites and generates visual reports |
+| [Wafw00f](https://github.com/EnableSecurity/wafw00f) | Web Application Firewall fingerprinting tool | Identifies and fingerprints Web Application Firewall products |
+
+### Vulnerability Scanners
+| Tool | Description | Function |
+|------|-------------|----------|
+| [Nuclei](https://github.com/projectdiscovery/nuclei) | Fast and customizable vulnerability scanner | Scans for security vulnerabilities using templates |
+| [WPScan](https://github.com/wpscanteam/wpscan) | WordPress security scanner | Identifies security issues in WordPress sites and their plugins |
+| [Nikto](https://github.com/sullo/nikto) | Web server scanner | Performs comprehensive tests against web servers |
+| [SQLMap](https://github.com/sqlmapproject/sqlmap) | Automatic SQL injection tool | Detects and exploits SQL injection vulnerabilities |
+| [Metasploit](https://github.com/rapid7/metasploit-framework) | Penetration testing framework | Provides vulnerability verification and exploitation capabilities |
+
+### Special Purpose Tools
+| Tool | Description | Function |
+|------|-------------|----------|
+| [Dalfox](https://github.com/hahwul/dalfox) | Parameter Analysis and XSS Scanner | Finds XSS vulnerabilities in web applications |
+| [CRLFuzz](https://github.com/dwisiswant0/crlfuzz) | Fast CRLF injection scanner | Detects CRLF injection vulnerabilities |
+| [Ghauri](https://github.com/r0oth3x49/ghauri) | SQL injection detector and crawler | Automatically detects and validates SQL injection points |
+| [GauPlus](https://github.com/bp0lr/gauplus) | Fetch known URLs | Fetches known URLs from AlienVault's Open Threat Exchange |
+| [Waybackurls](https://github.com/tomnomnom/waybackurls) | Fetch URLs from Wayback Machine | Retrieves historical URL data from the Internet Archive |
+| [KXSS](https://github.com/Emoe/kxss) | Advanced XSS scanner | Finds blind XSS vulnerabilities |
+
+### Web Probing Tools
+| Tool | Description | Function |
+|------|-------------|----------|
+| [HTTPx](https://github.com/projectdiscovery/httpx) | Fast HTTP probe | Checks for valid HTTP/HTTPS services |
+| [403-Bypass](https://github.com/iamj0ker/bypass-403) | Authentication bypass tool | Tests various bypass techniques for 403 Forbidden responses |
+| [Naabu](https://github.com/projectdiscovery/naabu) | Port scanning tool | Fast port scanner written in Go |
+| [Gospider](https://github.com/jaeles-project/gospider) | Fast web spider | Crawls websites and extracts endpoints, subdomains, and URLs |
+
+### Reporting Tools
+| Tool | Description | Function |
+|------|-------------|----------|
+| [SpiderFoot](https://github.com/smicallef/spiderfoot) | OSINT automation tool | Gathers intelligence about targets |
+| [Nmap](https://github.com/nmap/nmap) | Network mapper | Performs comprehensive network scanning and service detection |
+
 ## 🙏 The Hall of Fame (or "People Who Made LLEO Less Useless")
 
 Let's be honest - without these legendary humans, LLEO would just be a fancy terminal screensaver. Time to give credit where credit is due (and maybe beg for GitHub stars)!
