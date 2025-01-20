@@ -27,7 +27,7 @@ Ever felt like you're juggling chainsaws while performing recon? Say hello to LL
 Some say LLEO stands for "Live Linux Enumeration & Observation", others think it's "Lazy Lion Eating Oreos", and a few believe it's just what happens when you fall asleep on your keyboard while typing "HELLO". We'll let you pick your favorite explanation! 🦁
 
 Think of LLEO as that incredibly organized friend who somehow manages to keep track of everything while you're still trying to remember where you put your coffee (and what LLEO actually stands for). ☕
-
+</br>
 ## ✨ Features (or as we like to call them, "Happy Accidents")
 
 - **🏗️ Modular Architecture**: Like LEGO for hackers! Add your own tools, break things creatively, 
@@ -50,6 +50,7 @@ Think of LLEO as that incredibly organized friend who somehow manages to keep tr
 
 Bonus Feature: Works 60% of the time, every time! 😉
 
+</br>
 ## 🛠️ Modules (or "Ways to Make Security Teams Panic")
 
 ### 1. 🔍 Discovery Module (AKA "Finding Things People Tried to Hide")
@@ -88,6 +89,7 @@ Bonus Feature: Works 60% of the time, every time! 😉
 - Injection testing (SQLi: Because input validation is overrated)
 - Security misconfigurations (Finding out who copy-pasted from StackOverflow)
 
+</br>
 ## 🔧 Installation (The "Trust Me, It Works" Guide)
 
 Clone the repo (and pray it works)
@@ -96,7 +98,7 @@ cd LLEO-Framework # Point of no return
 Install dependencies and surrender your system to the security gods
 sudo python3 install.py # Watch your CPU have an existential crisis
 
-
+</br>
 ## 📋 Requirements (Things You'll Probably Need to Update)
 
 - Python 3.8+ (Because we're too lazy to support legacy versions)
@@ -107,6 +109,7 @@ sudo python3 install.py # Watch your CPU have an existential crisis
 - Patience (Lots of it)
 - Coffee ☕ (Non-negotiable)
 
+</br>
 ## 🚦 Usage (Or "How to Pretend You Know What You're Doing")
 
 ### Basic Usage (For Normal People):
@@ -118,7 +121,7 @@ sudo python3 install.py # Watch your CPU have an existential crisis
 
 ./lleo.py -d example.com -v -o output_dir --exclude exclude.txt   # Unleash chaos with style
 
-
+</br>
 ### Command Line Arguments (The "What Does This Button Do?" Section)
 
 | Argument | What It Actually Does |
@@ -130,12 +133,14 @@ sudo python3 install.py # Watch your CPU have an existential crisis
 | --config | For people who don't trust our defaults |
 | -s, --silent | Ninja mode (or "I don't want to see the errors") |
 
+</br>
 ### Hidden Features:
 - Automatic coffee maker (coming soon™)
 - Bug bounty auto-submitter (in your dreams)
 - Excuse generator for when things break
 - CPU temperature monitoring (just kidding, we'll max it out anyway)
 
+</br>
 ## 🛠️ Integrated Tools & Functions
 
 ### Subdomain Enumeration Tools
@@ -205,10 +210,12 @@ sudo python3 install.py # Watch your CPU have an existential crisis
 | [SpiderFoot](https://github.com/smicallef/spiderfoot) | OSINT automation tool | Gathers intelligence about targets |
 | [Nmap](https://github.com/nmap/nmap) | Network mapper | Performs comprehensive network scanning and service detection |
 
+</br>
 ## 🙏 The Hall of Fame (or "People Who Made LLEO Less Useless")
 
 Let's be honest - without these legendary humans, LLEO would just be a fancy terminal screensaver. Time to give credit where credit is due (and maybe beg for GitHub stars)!
 
+</br>
 ### 🎭 The Cast of Characters
 
 #### 🚀 ProjectDiscovery Team (The "We Write Everything in Go" Squad)
@@ -227,6 +234,7 @@ These folks wake up and choose ~~violence~~ productivity:
 - [SQLMap](https://github.com/sqlmapproject/sqlmap) - Bernardo & Miroslav - Making DBAs cry since 2006
 - [Metasploit](https://github.com/rapid7/metasploit-framework) - Rapid7 & Community - The OG "I know what I'm doing" framework
 
+</br>
 ### ⚠️ Disclaimer (The "Please Don't Sue Us" Section)
 If we forgot to credit you, blame it on:
 - Sleep deprivation (72 hours and counting!)
@@ -235,6 +243,7 @@ If we forgot to credit you, blame it on:
 - Mercury being in retrograde
 - Our last brain cell going on vacation
 
+</br>
 ### 🤝 How to Support These Legends (Because They Need More Than Just Thoughts and Prayers)
 - ⭐ Star their repos (Cheaper than therapy, more effective than LinkedIn endorsements)
 - 🐛 Report bugs (Not the ones you're saving for your next bug bounty)
@@ -243,6 +252,7 @@ If we forgot to credit you, blame it on:
 - ☕ Buy them coffee (Or whatever keeps them debugging at 3 AM)
 - 🍕 Send pizza (Because code runs on carbs)
 
+</br>
 ### 🎪 The Brutal Truth
 We're just the cover band playing security tools' greatest hits. Think of us as the "Now That's What I Call Hacking!" compilation album.
 
@@ -255,6 +265,7 @@ Remember: Behind every security tool is:
 
 *P.S. Several CPUs were mildly traumatized during development. We're sending them to therapy.*
 
+</br>
 ## 🤝 Contributing (The "Make It Better or Break It Trying" Section)
 Contributions are welcome! Just:
 1. Read our guidelines (We know you won't)
@@ -263,6 +274,7 @@ Contributions are welcome! Just:
 4. Submit PR (The scary part)
 5. Wait for review (The eternal part)
 
+</br>
 ## 📝 License (The Legal Stuff™)
 MIT License - Because we're too lazy to write our own and it sounds professional.
 TL;DR: Do whatever you want, just don't blame us when things go wrong.
@@ -278,6 +290,7 @@ Not for:
 - "Just checking" your competitor's security ❌
 - Explaining to the FBI why you're scanning .gov domains ❌
 
+</br>
 ## 📞 Contact (If You Must)
 - Twitter: [@naviyanka](https://twitter.com/naviyanka) (For professional rants)
 - Email: naviyanka@gmail.com (For formal complaints)
