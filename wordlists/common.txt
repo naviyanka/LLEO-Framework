@@ -1,0 +1,17 @@
+admin
+login
+wp-admin
+wp-content
+images
+css
+js
+assets
+backup
+config
+.git
+.env
+api
+docs
+test
+dev
+staging

@@ -1,1 +1,0 @@
-2025-01-20 01:09:01,772 - LLEO - ERROR - Failed to initialize modules: 'VulnerabilityScanModule' object has no attribute '_run_metasploit'

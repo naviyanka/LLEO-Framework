@@ -1,223 +1,220 @@
-import subprocess
+import asyncio
 import json
-import os
-import nmap
-from .base import BaseModule
+from typing import Dict, Any, List, Optional, Set, Type
+from pathlib import Path
+from datetime import datetime
+from core.utils.rate_limiter import RateLimiter
+from core.utils.cache_manager import CacheManager
+from .base_module import BaseModule, ToolResult
 
 class WebProbingModule(BaseModule):
     def __init__(self, framework):
         super().__init__(framework)
         self.tools = {
-            'httpx': self._run_httpx,
-            'aquatone': self._run_aquatone,
-            'nmap': self._run_nmap,
             'naabu': self._run_naabu,
-            '403-bypass': self._run_403_bypass
+            'httpx': self._run_httpx
+        }
+        self.running_tasks: Set[asyncio.Task] = set()
+        self.max_concurrent_tasks = self.config.tools.threads
+        self.rate_limiter = RateLimiter(
+            calls_per_second=self.config.tools.rate_limit,
+            burst_size=self.config.tools.burst_size
+        )
+        self.cache = CacheManager(
+            cache_dir=self.output_dir / 'cache',
+            ttl=self.config.performance.cache_ttl
+        )
+
+    def get_required_tools(self) -> Dict[str, Optional[str]]:
+        """Return required tools and their minimum versions"""
+        return {
+            'naabu': '2.1.0',
+            'httpx': '1.3.0'
         }
 
-    def run(self):
-        """Execute web probing tools"""
-        self.logger.info("Starting web probing phase...")
-        results = {}
+    async def setup(self) -> None:
+        """Setup module resources"""
+        await super().setup()
+        self.logger.info("Setting up web probing module...")
         
-        # Get targets from previous phases
-        targets = self._get_targets()
-        
-        for tool_name, tool_func in self.tools.items():
+        # Verify tool versions
+        for tool, min_version in self.get_required_tools().items():
             try:
-                self.logger.info(f"Running {tool_name}...")
-                results[tool_name] = tool_func(targets)
+                if tool == 'naabu':
+                    result = await self.execute_tool(['naabu', '--version'])
+                elif tool == 'httpx':
+                    result = await self.execute_tool(['httpx', '--version'])
+                else:
+                    result = await self.execute_tool([tool, '-version'])
+                    
+                if result.success:
+                    version = result.output
+                    if version:
+                        self.logger.info(f"Found {tool} version {version}")
+                    else:
+                        self.logger.warning(f"Could not determine {tool} version")
+                else:
+                    self.logger.error(f"Error checking {tool} version: {result.error}")
             except Exception as e:
-                self.logger.error(f"Error running {tool_name}: {str(e)}")
-                results[tool_name] = {'error': str(e)}
-        
-        self._save_results(results)
-        return results
+                self.logger.error(f"Error checking {tool} version: {e}")
 
-    def _run_httpx(self, targets):
-        """Run httpx tool"""
+    async def cleanup(self) -> None:
+        """Cleanup module resources"""
         try:
-            input_file = os.path.join(self.framework.output_dir, 'probe_targets.txt')
-            output_file = os.path.join(self.framework.output_dir, 'httpx_results.json')
+            # Stop rate limiter monitoring
+            await self.rate_limiter.stop_monitoring()
             
-            with open(input_file, 'w') as f:
-                f.write('\n'.join(targets))
+            # Cancel any running tasks
+            for task in self.running_tasks:
+                if not task.done():
+                    task.cancel()
             
-            cmd = [
-                'httpx',
-                '-l', input_file,
-                '-json',
-                '-tech-detect',
-                '-title',
-                '-status-code',
-                '-follow-redirects',
-                '-o', output_file
-            ]
+            # Wait for tasks to complete
+            if self.running_tasks:
+                await asyncio.gather(*self.running_tasks, return_exceptions=True)
             
-            subprocess.run(cmd, check=True)
+            # Clean up temporary files
+            temp_dir = self.output_dir / 'temp'
+            if temp_dir.exists():
+                import shutil
+                shutil.rmtree(temp_dir)
             
-            with open(output_file) as f:
-                return [json.loads(line) for line in f if line.strip()]
-        except subprocess.CalledProcessError as e:
-            raise Exception(f"httpx error: {e.stderr}")
+            await super().cleanup()
+            
+        except Exception as e:
+            self.logger.error(f"Error during cleanup: {e}")
 
-    def _run_nmap(self, targets):
-        """Run nmap scan"""
+    def get_dependencies(self) -> List[Type]:
+        """Get module dependencies"""
+        return []
+
+    def get_event_handlers(self) -> Dict[str, callable]:
+        """Get event handlers"""
+        return {}
+
+    async def run(self) -> Dict[str, Any]:
+        """Run web probing tools"""
         try:
-            nm = nmap.PortScanner()
+            await self.setup()
+            self.logger.info("Starting web probing...")
+            
+            # Get targets from discovery results
+            targets = await self._get_targets()
+            if not targets:
+                self.logger.warning("No discovery results found, using target domain")
+                targets = [self.framework.args.domain]
+            
             results = {}
             
-            for target in targets:
-                self.logger.info(f"Scanning {target} with nmap...")
-                scan_result = nm.scan(
-                    target,
-                    arguments='-sV -sC -p- --min-rate=1000'
-                )
-                results[target] = scan_result
+            # Run naabu for port scanning
+            naabu_results = await self._run_naabu(targets)
+            if naabu_results and naabu_results.success:
+                results['ports'] = naabu_results.output
+            
+            # Run httpx for web probing
+            httpx_results = await self._run_httpx(targets)
+            if httpx_results and httpx_results.success:
+                results['web'] = httpx_results.output
             
             return results
+            
         except Exception as e:
-            raise Exception(f"Nmap error: {str(e)}")
+            self.logger.error(f"Critical error in web probing module: {e}")
+            return {'error': str(e)}
+        finally:
+            await self.cleanup()
 
-    def _run_naabu(self, targets):
+    async def _run_naabu(self, targets: List[str]) -> ToolResult:
         """Run naabu port scanner"""
         try:
-            input_file = os.path.join(self.framework.output_dir, 'naabu_targets.txt')
-            output_file = os.path.join(self.framework.output_dir, 'naabu_results.json')
-            
-            with open(input_file, 'w') as f:
-                f.write('\n'.join(targets))
+            output_file = self.output_dir / 'naabu_results.txt'
             
             cmd = [
                 'naabu',
-                '-l', input_file,
-                '-json',
-                '-o', output_file
+                '--silent',
+                '--json',
+                '--output', str(output_file)
             ]
+            cmd.extend(['--host', ','.join(targets)])
             
-            subprocess.run(cmd, check=True)
+            result = await self.execute_tool(cmd)
+            if not result.success:
+                self.logger.error(f"Naabu failed: {result.error}")
+                return result
             
-            with open(output_file) as f:
-                return [json.loads(line) for line in f if line.strip()]
-        except subprocess.CalledProcessError as e:
-            raise Exception(f"Naabu error: {e.stderr}")
+            if output_file.exists():
+                try:
+                    results = []
+                    for line in output_file.read_text().splitlines():
+                        if line.strip():
+                            try:
+                                results.append(json.loads(line))
+                            except json.JSONDecodeError:
+                                self.logger.warning(f"Failed to parse naabu result line: {line}")
+                    
+                    result.output = results
+                    return result
+                except Exception as e:
+                    self.logger.error(f"Error reading naabu results: {e}")
+                    return ToolResult(success=False, error=str(e), exit_code=-1)
+            
+            return ToolResult(success=False, error="No output file generated", exit_code=-1)
+            
+        except Exception as e:
+            self.logger.error(f"Error in naabu: {e}")
+            return ToolResult(success=False, error=str(e), exit_code=-1)
 
-    def _run_aquatone(self, targets):
-        """Run aquatone tool"""
+    async def _run_httpx(self, targets: List[str]) -> ToolResult:
+        """Run httpx web prober"""
         try:
-            if not self._check_tool_exists('aquatone'):
-                raise Exception("aquatone not found. Please install it first.")
-            
-            input_file = os.path.join(self.framework.output_dir, 'aquatone_targets.txt')
-            output_dir = os.path.join(self.framework.output_dir, 'aquatone')
-            
-            # Write targets to input file
-            with open(input_file, 'w') as f:
-                f.write('\n'.join(targets))
+            output_file = self.output_dir / 'httpx_results.json'
             
             cmd = [
-                'aquatone',
-                '-out', output_dir,
-                '-silent',
-                '-scan-timeout', '3000',
-                '-screenshot-timeout', '3000',
-                '-ports', 'small',
-                '-input', input_file
+                'httpx',
+                '--silent',
+                '--json',
+                '--output', str(output_file),
+                '--status-code',
+                '--title',
+                '--web-server',
+                '--tech-detect',
+                '--follow-redirects'
             ]
+            cmd.extend(['--url', ','.join(targets)])
             
-            subprocess.run(cmd, check=True)
+            result = await self.execute_tool(cmd)
+            if not result.success:
+                self.logger.error(f"Httpx failed: {result.error}")
+                return result
             
-            # Process results
-            results = {
-                'screenshots': [],
-                'html_report': None
-            }
+            if output_file.exists():
+                try:
+                    results = []
+                    for line in output_file.read_text().splitlines():
+                        if line.strip():
+                            try:
+                                results.append(json.loads(line))
+                            except json.JSONDecodeError:
+                                self.logger.warning(f"Failed to parse httpx result line: {line}")
+                    
+                    result.output = results
+                    return result
+                except Exception as e:
+                    self.logger.error(f"Error reading httpx results: {e}")
+                    return ToolResult(success=False, error=str(e), exit_code=-1)
             
-            # Check for screenshots
-            screenshots_dir = os.path.join(output_dir, 'screenshots')
-            if os.path.exists(screenshots_dir):
-                results['screenshots'] = [
-                    os.path.join('screenshots', f) 
-                    for f in os.listdir(screenshots_dir) 
-                    if f.endswith('.png')
-                ]
+            return ToolResult(success=False, error="No output file generated", exit_code=-1)
             
-            # Check for HTML report
-            html_report = os.path.join(output_dir, 'aquatone_report.html')
-            if os.path.exists(html_report):
-                results['html_report'] = 'aquatone_report.html'
-            
-            return results
-            
-        except subprocess.CalledProcessError as e:
-            self.logger.error(f"Aquatone error: {e.stderr if hasattr(e, 'stderr') else str(e)}")
-            return {'error': str(e)}
         except Exception as e:
-            self.logger.error(f"Unexpected error in aquatone: {str(e)}")
-            return {'error': str(e)}
+            self.logger.error(f"Error in httpx: {e}")
+            return ToolResult(success=False, error=str(e), exit_code=-1)
 
-    def _run_403_bypass(self, targets):
-        """Run 403 bypass tool"""
+    async def _get_targets(self) -> List[str]:
+        """Get targets from discovery results"""
         try:
-            if not self._check_tool_exists('403-bypass'):
-                raise Exception("403-bypass not found. Please install it first.")
-            
-            results = {}
-            for target in targets:
-                output_file = os.path.join(
-                    self.framework.output_dir, 
-                    f'403bypass_{target.replace("://", "_")}.txt'
-                )
-                
-                cmd = [
-                    '403-bypass',
-                    '-u', target,
-                    '-o', output_file,
-                    '--skip-default-ports'
-                ]
-                
-                subprocess.run(cmd, check=True)
-                
-                if os.path.exists(output_file):
-                    with open(output_file) as f:
-                        results[target] = [line.strip() for line in f if line.strip()]
-                else:
-                    results[target] = []
-            
-            return results
-            
-        except subprocess.CalledProcessError as e:
-            self.logger.error(f"403-bypass error: {e.stderr if hasattr(e, 'stderr') else str(e)}")
-            return {'error': str(e)}
+            discovery_results = await self.framework.session_manager.get_results('discovery')
+            if discovery_results and 'subdomains' in discovery_results:
+                return discovery_results['subdomains']
         except Exception as e:
-            self.logger.error(f"Unexpected error in 403-bypass: {str(e)}")
-            return {'error': str(e)}
-
-    def _get_targets(self):
-        """Get targets from previous phases"""
-        discovery_file = os.path.join(self.framework.output_dir, 'discovery_results.json')
-        targets = []
-        
-        if os.path.exists(discovery_file):
-            try:
-                with open(discovery_file) as f:
-                    data = json.load(f)
-                    for tool_results in data.values():
-                        if isinstance(tool_results, dict):
-                            if 'subdomains' in tool_results:
-                                targets.extend(tool_results['subdomains'])
-            except Exception as e:
-                self.logger.error(f"Error reading discovery results: {str(e)}")
-        
-        if not targets:
-            targets = [self.framework.args.domain]
-        
-        # Add http/https if not present
-        formatted_targets = []
-        for target in targets:
-            if not target.startswith(('http://', 'https://')):
-                formatted_targets.extend([f'http://{target}', f'https://{target}'])
-            else:
-                formatted_targets.append(target)
-        
-        return list(set(formatted_targets)) 
+            self.logger.error(f"Error getting discovery results: {e}")
+        return []

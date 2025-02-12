@@ -1,7 +1,7 @@
 api_keys:
   chaos: ''
   github: ''
-  securitytrails: ''
+  securitytrails: 'h__MNTv6tIfmuWRvow0Zdo9_miXmckDC'
   wayback: ''
 output:
   directory: output

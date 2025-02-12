@@ -1,91 +1,93 @@
 #!/usr/bin/env python3
 
-import sys
-import signal
-import argparse
 import os
-from datetime import datetime
-from colorama import Fore, Style, init
-from core.banner import print_banner
-from core.utils.logger import setup_logger
-from core.utils.config import load_config
-from core.framework import LLEOFramework
+import sys
+import logging
+import argparse
+from pathlib import Path
+from core.framework import Framework
 
-# Initialize colorama
-init()
+def setup_logging(verbose: bool = False) -> logging.Logger:
+    """Setup logging configuration"""
+    log_level = logging.DEBUG if verbose else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format='[%(asctime)s] %(levelname)-8s %(message)s',
+        datefmt='%y/%m/%d %H:%M:%S'
+    )
+    return logging.getLogger(__name__)
 
-def signal_handler(sig, frame):
-    """Handle Ctrl+C gracefully"""
-    try:
-        sys.stdout.write(f"\n{Fore.YELLOW}[*] Interrupt received{Style.RESET_ALL}\n")
-        sys.stdout.flush()
-        
-        while True:
-            sys.stdout.write("\nDo you want to:\n[1] Skip current tool\n[2] Skip current module\n[3] Quit\nChoice (1-3): ")
-            sys.stdout.flush()
-            
-            try:
-                choice = sys.stdin.readline().strip()
-                if choice in ['1', '2', '3']:
-                    if choice == '3':
-                        print(f"\n{Fore.RED}[!] Exiting LLEO Framework{Style.RESET_ALL}")
-                        sys.exit(0)
-                    return choice
-                else:
-                    print("Invalid choice. Please enter 1, 2, or 3.")
-            except (EOFError, KeyboardInterrupt):
-                print(f"\n{Fore.RED}[!] Forced exit{Style.RESET_ALL}")
-                sys.exit(1)
-    except Exception as e:
-        print(f"\n{Fore.RED}[!] Error in signal handler: {str(e)}{Style.RESET_ALL}")
-        sys.exit(1)
-
-def parse_arguments():
+def parse_args() -> argparse.Namespace:
     """Parse command line arguments"""
-    parser = argparse.ArgumentParser(description='LLEO Framework - Security Reconnaissance Suite')
-    parser.add_argument('-d', '--domain', help='Target domain', required=False)
-    parser.add_argument('-x', '--exclude', help='Exclude domains list file', required=False)
-    parser.add_argument('-s', '--silent', action='store_true', help='Hide terminal output')
-    parser.add_argument('-j', '--json', action='store_true', help='Store output in JSON format')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
-    parser.add_argument('--version', action='version', version='LLEO Framework v1.0.0')
-    
+    parser = argparse.ArgumentParser(description='LLEO Security Testing Framework')
+    parser.add_argument('-d', '--domain', required=True, help='Target domain')
+    parser.add_argument('-s', '--silent', action='store_true', help='Silent mode')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
+    parser.add_argument('-o', '--output', help='Output directory')
+    parser.add_argument('-c', '--config', help='Custom config file')
+    parser.add_argument('--no-color', action='store_true', help='Disable colored output')
     return parser.parse_args()
 
-def main():
-    # Register signal handler
-    signal.signal(signal.SIGINT, signal_handler)
-    
-    # Parse arguments
-    args = parse_arguments()
-    
-    # If no arguments provided, print banner and help
-    if len(sys.argv) == 1:
-        print_banner()
-        sys.exit(0)
-    
-    # Load configuration
-    config = load_config()
-    if not config:
-        print(f"{Fore.RED}[!] Failed to load configuration{Style.RESET_ALL}")
-        sys.exit(1)
-    
-    # Setup logger
-    logger = setup_logger(args.silent)
-    
+async def run_framework(framework: Framework) -> None:
+    """Run the framework"""
     try:
-        # Initialize framework
-        framework = LLEOFramework(args, config, logger)
+        await framework.start()
+    except KeyboardInterrupt:
+        print("\nReceived keyboard interrupt, cleaning up...")
+        await framework.cleanup()
+    except Exception as e:
+        print(f"Critical error: {e}")
+        await framework.cleanup()
+
+def main() -> None:
+    """Main entry point"""
+    try:
+        # Parse arguments
+        args = parse_args()
+        
+        # Setup logging
+        logger = setup_logging(args.verbose)
+        
+        # Create framework instance
+        framework = Framework(args)
         
         # Run framework
-        framework.run()
+        import asyncio
+        asyncio.run(run_framework(framework))
         
     except KeyboardInterrupt:
-        print(f"\n{Fore.RED}[!] Interrupted by user{Style.RESET_ALL}")
+        print("\nReceived keyboard interrupt, exiting...")
         sys.exit(1)
     except Exception as e:
-        print(f"{Fore.RED}[!] Framework error: {str(e)}{Style.RESET_ALL}")
+        print(f"Critical error: {e}")
         sys.exit(1)
 
-if __name__ == "__main__":
-    main() 
+if __name__ == '__main__':
+    # Print banner
+    print("""╭───────────────────────────────────────── LLEO ──────────────────────────────────────────╮
+│                                                                                         │
+│                                                                                         │
+│  ██╗     ██╗     ███████╗ ██████╗                                                       │
+│  ██║     ██║     ██╔════╝██╔═══██╗                                                      │
+│  ██║     ██║     █████╗  ██║   ██║                                                      │
+│  ██║     ██║     ██╔══╝  ██║   ██║                                                      │
+│  ███████╗███████╗███████╗╚██████╔╝                                                      │
+│  ╚══════╝╚══════╝╚══════╝ ╚═════╝                                                       │
+│                                                                                         │
+│  LLEO Security Testing Framework v1.0.0                                                 │
+│                                                                                         │
+│  Usage:                                                                                 │
+│    lleo -d example.com [options]                                                        │
+│                                                                                         │
+│  Options:                                                                               │
+│    -d, --domain    Target domain (required)                                             │
+│    -s, --silent    Silent mode                                                          │
+│    -v, --verbose   Verbose output                                                       │
+│    -o, --output    Output directory                                                     │
+│    -c, --config    Custom config file                                                   │
+│    --no-color      Disable colored output                                               │
+│                                                                                         │
+│                                                                                         │
+│                                                                                         │
+╰─────────────────────────────────────────────────────────────────────────────────────────╯""")
+    main()
